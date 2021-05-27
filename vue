@@ -1,0 +1,7 @@
+vue组件信息传递：
+1父组件通过传递函数:addTodo='addTodo',子组件通过props拿到addTodo函数，通过this.addTodo执行
+2.通过父组件绑定监听函数@addTodo="addTodo"，子组件通过this.$emit('addTodo',todo)调用
+3.通过父组件在mounted的时候绑定事件监听this.$refs.header.$on('addTodo',this.addTodo)（注意：this.sddTodo是父组件的函数）
+4.PubSub.subscribe('addTodo',(msg,data)=>{  (注意箭头函数化解this指向问题)
+ this.addTodo(data)
+})
