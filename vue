@@ -7,3 +7,7 @@ vue组件信息传递：
 })
 5.slot传递标签数据，slot是在父组件里运行编译的，相关代码都放到父组件里，（我的理解是父组件都搞定了，子组件需要引入即可）
 父组件<todo-footer><input type="checkbox" v-model="isAllCheck" slot="checkAll"></todo-footer>子组件<slot name="checkAll"></slot>
+父组件调用子组件的方法：
+通过refs获取组件，然后调用方法即可
+如何设置一个没有绑定的变量：
+Vue.set(对象,属性名,属性值)
