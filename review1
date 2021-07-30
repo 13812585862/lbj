@@ -51,3 +51,11 @@ function _new2(fn, ...arg) {
    // 为啥这里需要判断一下ret，根据new的定义，如果构造函数没有返回一个对象，那么返回this对象，this当前就是obj
    return ret instanceof Object ? ret : obj 
 };function Person(age){this.age=age;};var s=_new2(Person,10);console.log(s);
+
+（5）简单讲解一下 http2 的多路复用
+HTTP2采用二进制格式传输，取代了HTTP1.x的文本格式，二进制格式解析更高效。
+多路复用代替了HTTP1.x的序列和阻塞机制，所有的相同域名请求都通过同一个TCP连接并发完成。在HTTP1.x中，并发多个请求需要多个TCP连接，浏览器为了控制资源会有6-8个TCP连接都限制。
+HTTP2中
+
+同域名下所有通信都在单个连接上完成，消除了因多个 TCP 连接而带来的延时和内存消耗。
+单个连接上可以并行交错的请求和响应，之间互不干扰
