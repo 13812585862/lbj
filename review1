@@ -40,3 +40,14 @@ function mynew () {
     // 4、返回对象（如果构造函数有返回对象，那么就返回构造函数的对象，如果没有就返回新对象）
     return Object.prototype.toString.call(returnObj) == '[object Object]' ? returnObj : obj;
 }
+
+
+function _new2(fn, ...arg) {
+   // 这一句话只是构造了一个对象，这个对象的__proto__=== fn.prototype
+   var obj = Object.create(fn.prototype)
+   // 并没有给这个对象赋值，将fn的this对象设置为obj
+   // call 是列表， apply是数组
+   const ret = fn.call(obj, ...arg) 
+   // 为啥这里需要判断一下ret，根据new的定义，如果构造函数没有返回一个对象，那么返回this对象，this当前就是obj
+   return ret instanceof Object ? ret : obj 
+};function Person(age){this.age=age;};var s=_new2(Person,10);console.log(s);
