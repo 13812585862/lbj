@@ -1,0 +1,62 @@
+（1）介绍下 Npm 模块安装机制，为什么输入 Npm Install 就可以自动安装对应的模块
+ npm 实现原理
+ 输入 npm install 命令并敲下回车后，会经历如下几个阶段
+ 1.执行工程自身 preinstall
+ 2.确定首层依赖模块
+ 3.获取模块（完整的依赖树）
+ 4.模块扁平化（dedupe）
+ 它会遍历所有节点，逐个将模块放在根节点下面，也就是 node-modules 的第一层。当发现有重复模块时，则将其丢弃。合并得到兼容版本。
+ 5.安装模块
+ 这一步将会更新工程中的 node_modules，并执行模块中的生命周期函数（按照 preinstall、install、postinstall 的顺序）
+ 6.执行工程自身生命周期
+ 当前 npm 工程如果定义了钩子此时会被执行（按照 install、postinstall、prepublish、prepare 的顺序）
+ 最后一步是生成或更新版本描述文件，npm install 过程完成
+ 
+ （2）有以下 3 个判断数组的方法，请分别介绍它们之间的区别和优劣
+ Object.prototype.toString.call() 、 instanceof 以及 Array.isArray()
+ 1. Object.prototype.toString.call()
+每一个继承 Object 的对象都有 toString 方法，如果 toString 方法没有重写的话，会返回 [Object type]，其中 type 为对象的类型。
+但当除了 Object 类型的对象外，其他类型直接使用 toString 方法时，会直接返回都是内容的字符串，所以我们需要使用call或者apply方法来改变toString方法的执行上下文。
+Object.prototype.toString.call() 常用于判断浏览器内置对象时。
+
+2. instanceof
+instanceof  的内部机制是通过判断对象的原型链中是不是能找到类型的 prototype。
+但 instanceof 只能用来判断对象类型，原始类型不可以。并且所有对象类型 instanceof Object 都是 true。
+
+3. Array.isArray()
+功能：用来判断对象是否为数组
+当检测Array实例时，Array.isArray 优于 instanceof ，因为 Array.isArray 可以检测出 iframes
+
+（3）介绍下重绘和回流（Repaint & Reflow），以及如何进行优化
+解析HTML，生成DOM树，解析CSS，生成CSSOM树
+将DOM树和CSSOM树结合，生成渲染树(Render Tree)
+Layout(回流):根据生成的渲染树，进行回流(Layout)，得到节点的几何信息（位置，大小）
+Painting(重绘):根据渲染树以及回流得到的几何信息，得到节点的绝对像素
+Display:将像素发送给GPU，展示在页面上。（这一步其实还有很多内容，比如会在GPU将多个合成层合并为同一个层，并展示在页面中。
+
+减少回流和重绘
+最小化重绘和重排,即三次修改css样式可以写成一句
+批量修改DOM
+避免触发同步布局事件（提取变量）
+对于复杂动画效果,使用绝对定位让其脱离文档流
+css3硬件加速（GPU加速）
+划重点：
+
+1. 使用css3硬件加速，可以让transform、opacity、filters这些动画不会引起回流重绘 。
+
+2. 对于动画的其它属性，比如background-color这些，还是会引起回流重绘的，不过它还是可以提升这些动画的性能。
+css3硬件加速的坑
+当然，任何美好的东西都是会有对应的代价的，过犹不及。css3硬件加速还是有坑的:
+
+如果你为太多元素使用css3硬件加速，会导致内存占用较大，会有性能问题。
+在GPU渲染字体会导致抗锯齿无效。这是因为GPU和CPU的算法不同。因此如果你不在动画结束的时候关闭硬件加速，会产生字体模糊。
+
+（4）介绍下观察者模式和订阅-发布模式的区别，各自适用于什么场景
+观察者模式中主体和观察者是互相感知的，发布-订阅模式是借助第三方来实现调度的，发布者和订阅者之间互不感知
+观察者模式依赖一旦改变就会触发更新，而订阅发布模式则需要手动触发更新
+区别
+观察者模式里，只有两个角色 —— 观察者 + 被观察者
+而发布订阅模式里，却不仅仅只有发布者和订阅者两个角色，还有一个管理并执行消息队列的“经纪人Broker”
+再者
+观察者和被观察者，是松耦合的关系
+发布者和订阅者，则完全不存在耦合
