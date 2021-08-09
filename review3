@@ -89,3 +89,43 @@ Last-Modified的时间单位是秒，如果某个文件在1秒内改变了多次
 总结：
 强制缓存优先于协商缓存进行，若强制缓存(Expires和Cache-Control)生效则直接使用缓存，若不生效则进行协商缓存(Last-Modified / If-Modified-Since和Etag / If-None-Match)，协商缓存由服务器决定是否使用缓存，若协商缓存失效，那么代表该请求的缓存失效，返回200，重新返回资源和缓存标识，再存入浏览器缓存中；生效则返回304，继续使用缓存
 
+（6）使用迭代的方式实现 flatten 函数
+function flatten(arr) {
+    let arrs = [];
+      arr.map(item => {
+        if(Array.isArray(item)){
+          arrs.push(... flatten(item))
+        } else {
+          arrs.push(item)
+        }
+      })
+      return arrs
+    };flatten([1,2,[222,2,[33,11]]])
+    
+ （7）为什么 Vuex 的 Mutation 和 Redux 的 Reducer 中不能做异步操作？
+   单一职责原则：mutation 或 reducer 只作为数据的输入输出， 即 state 的变更接口，纯函数。这样做的好处就是可以更好解耦和接口封装。
+   vue用的不是很多，所以不是很清楚mutation里面为什么不能有异步操作，下面解释一下为什么Redux的reducer里不能有异步操作。
+
+先从Redux的设计层面来解释为什么Reducer必须是纯函数
+如果你经常用React+Redux开发，那么就应该了解Redux的设计初衷。Redux的设计参考了Flux的模式，作者希望以此来实现时间旅行，保存应用的历史状态，实现应用状态的可预测。所以整个Redux都是函数式编程的范式，要求reducer是纯函数也是自然而然的事情，使用纯函数才能保证相同的输入得到相同的输入，保证状态的可预测。所以Redux有三大原则：
+
+单一数据源，也就是state
+state 是只读，Redux并没有暴露出直接修改state的接口，必须通过action来触发修改
+使用纯函数来修改state，reducer必须是纯函数
+下面在从代码层面来解释为什么reducer必须是纯函数
+那么reducer到底干了件什么事，在Redux的源码中只用了一行来表示：
+
+currentState = currentReducer(currentState, action)
+这一行简单粗暴的在代码层面解释了为什么currentReducer必须是纯函数。currentReducer就是我们在createStore中传入的reducer（至于为什么会加个current有兴趣的可以自己去看源码），reducer是用来计算state的，所以它的返回值必须是state，也就是我们整个应用的状态，而不能是promise之类的。
+
+要在reducer中加入异步的操作，如果你只是单纯想执行异步操作，不会等待异步的返回，那么在reducer中执行的意义是什么。如果想把异步操作的结果反应在state中，首先整个应用的状态将变的不可预测，违背Redux的设计原则，其次，此时的currentState将会是promise之类而不是我们想要的应用状态，根本是行不通的。
+
+其实这个问题应该是Redux中为什么不能有副作用的操作更合适。
+   
+   事实上在 vuex 里面 actions 只是一个架构性的概念，并不是必须的，说到底只是一个函数，你在里面想干嘛都可以，只要最后触发 mutation 就行。异步竞态怎么处理那是用户自己的事情。
+   vuex 真正限制你的只有 mutation 必须是同步的这一点（在 redux 里面就好像 reducer 必须同步返回下一个状态一样）。同步的意义在于这样每一个 mutation 执行完成后都可以对应到一个新的状态
+   （和 reducer 一样），这样 devtools 就可以打个 snapshot 存下来，然后就可以随便 time-travel 了。如果你开着 devtool 调用一个异步的 action，你可以清楚地看到它所调用的 mutation
+   是何时被记录下来的，并且可以立刻查看它们对应的状态。其实我有个点子一直没时间做，那就是把记录下来的 mutations 做成类似 rx-marble 那样的时间线图，对于理解应用的异步状态变化很有帮助。
+
+
+   
