@@ -121,11 +121,86 @@ currentState = currentReducer(currentState, action)
 要在reducer中加入异步的操作，如果你只是单纯想执行异步操作，不会等待异步的返回，那么在reducer中执行的意义是什么。如果想把异步操作的结果反应在state中，首先整个应用的状态将变的不可预测，违背Redux的设计原则，其次，此时的currentState将会是promise之类而不是我们想要的应用状态，根本是行不通的。
 
 其实这个问题应该是Redux中为什么不能有副作用的操作更合适。
-   
+
    事实上在 vuex 里面 actions 只是一个架构性的概念，并不是必须的，说到底只是一个函数，你在里面想干嘛都可以，只要最后触发 mutation 就行。异步竞态怎么处理那是用户自己的事情。
    vuex 真正限制你的只有 mutation 必须是同步的这一点（在 redux 里面就好像 reducer 必须同步返回下一个状态一样）。同步的意义在于这样每一个 mutation 执行完成后都可以对应到一个新的状态
    （和 reducer 一样），这样 devtools 就可以打个 snapshot 存下来，然后就可以随便 time-travel 了。如果你开着 devtool 调用一个异步的 action，你可以清楚地看到它所调用的 mutation
    是何时被记录下来的，并且可以立刻查看它们对应的状态。其实我有个点子一直没时间做，那就是把记录下来的 mutations 做成类似 rx-marble 那样的时间线图，对于理解应用的异步状态变化很有帮助。
 
+（8）var a = ?;
+if(a == 1 && a == 2 && a == 3){
+ 	console.log(1);
+}
+解法1                                 
+var a = {
+  i: 1,
+  toString() {
+    return a.i++;
+  }
+}
 
-   
+if( a == 1 && a == 2 && a == 3 ) {
+  console.log(1);
+}
+ 解法2
+ let a = {
+  i: 1,
+  valueOf () {
+    return a.i++
+  }
+}
+
+if(a == 1 && a == 2 && a == 3) {
+  console.log('1');
+}
+（9）介绍下 BFC 及其应用
+BFC的布局规则
+
+内部的Box会在垂直方向，一个接一个地放置。
+Box垂直方向的距离由margin决定。属于同一个BFC的两个相邻Box的margin会发生重叠。
+每个盒子（块盒与行盒）的margin box的左边，与包含块border box的左边相接触(对于从左往右的格式化，否则相反)。即使存在浮动也是如此。
+BFC的区域不会与float box重叠。
+BFC就是页面上的一个隔离的独立容器，容器里面的子元素不会影响到外面的元素。反之也如此。
+计算BFC的高度时，浮动元素也参与计算。
+如何创建BFC
+
+根元素或包含根元素的元素
+浮动元素(float不为none)
+绝对定位元素(position为absolute或者fixed)
+display为inline-block,table-cell,table-caption
+overflow值不为visible
+弹性元素(flex布局)
+网格元素(grid布局)
+BFC的作用
+利用BFC避免margin重叠。
+
+
+（10）在 Vue 中，子组件为何不可以修改父组件传递的 Prop，如果修改了，Vue 是如何监控到属性的修改并给出警告的
+为了保证数据的单向流动，便于对数据进行追踪，避免数据混乱。
+所有的 prop 都使得其父子 prop 之间形成了一个单向下行绑定：父级 prop 的更新会向下流动到子组件中，但是反过来则不行。这样会防止从子组件意外改变父级组件的状态，从而导致你的应用的数据流向难以理解。
+原因很简单，一个父组件下不只有你一个子组件。
+同样，使用这份 prop 数据的也不只有你一个子组件。
+如果每个子组件都能修改 prop 的话，将会导致修改数据的源头不止一处。
+所以我们需要将修改数据的源头统一为父组件，子组件像要改 prop 只能委托父组件帮它。从而保证数据修改源唯一
+if (process.env.NODE_ENV !== 'production') {
+      var hyphenatedKey = hyphenate(key);
+      if (isReservedAttribute(hyphenatedKey) ||
+          config.isReservedAttr(hyphenatedKey)) {
+        warn(
+          ("\"" + hyphenatedKey + "\" is a reserved attribute and cannot be used as component prop."),
+          vm
+        );
+      }
+      defineReactive$$1(props, key, value, function () {
+        if (!isRoot && !isUpdatingChildComponent) {
+          warn(
+            "Avoid mutating a prop directly since the value will be " +
+            "overwritten whenever the parent component re-renders. " +
+            "Instead, use a data or computed property based on the prop's " +
+            "value. Prop being mutated: \"" + key + "\"",
+            vm
+          );
+        }
+      });
+    }
+在initProps的时候，在defineReactive时通过判断是否在开发环境，如果是开发环境，会在触发set的时候判断是否此key是否处于updatingChildren中被修改，如果不是，说明此修改来自子组件，触发warning提示。
