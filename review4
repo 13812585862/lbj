@@ -36,3 +36,50 @@ function output(){
   console.log(1);
 }
 sleep(output,1000);
+（2）使用 sort() 对数组 [3, 15, 8, 29, 102, 22] 进行排序，输出结果
+[102, 15, 22, 29, 3, 8]
+[3, 15, 8, 29, 102, 22].sort(function(a,b) {
+return a-b;
+})
+（3）介绍 HTTPS 握手过程
+客户端使用https的url访问web服务器,要求与服务器建立ssl连接
+web服务器收到客户端请求后, 会将网站的证书(包含公钥)传送一份给客户端
+客户端收到网站证书后会检查证书的颁发机构以及过期时间, 如果没有问题就随机产生一个秘钥
+客户端利用公钥将会话秘钥加密, 并传送给服务端, 服务端利用自己的私钥解密出会话秘钥
+之后服务器与客户端使用秘钥加密传输
+（4）HTTPS 握手过程中，客户端如何验证证书的合法性
+1首先浏览器读取证书中的证书所有者、有效期等信息进行校验，校验证书的网站域名是否与证书颁发的域名一致，校验证书是否在有效期内
+2浏览器开始查找操作系统中已内置的受信任的证书发布机构CA，与服务器发来的证书中的颁发者CA比对，用于校验证书是否为合法机构颁发
+3如果找不到，浏览器就会报错，说明服务器发来的证书是不可信任的。
+4如果找到，那么浏览器就会从操作系统中取出颁发者CA 的公钥(多数浏览器开发商发布
+版本时，会事先在内部植入常用认证机关的公开密钥)，然后对服务器发来的证书里面的签名进行解密
+5浏览器使用相同的hash算法计算出服务器发来的证书的hash值，将这个计算的hash值与证书中签名做对比
+6对比结果一致，则证明服务器发来的证书合法，没有被冒充
+（5）输出以下代码执行的结果并解释为什么
+var obj = {
+  "2": 3,
+  "3": 4,
+  length: 2,
+  splice: Array.prototype.splice,
+  push: Array.prototype.push
+};
+obj.push(1);
+obj.push(2);
+console.log(obj);
+
+输出Object(4) [empty × 2, 1, 2, length: 4,splice: ƒ, push: ƒ]
+
+对象转数组的方式：
+Array.from()、splice()、slice()、concat()
+
+function list(){
+    return Array.prototype.slice.call(arguments);  
+    或者Array.prototype.splice.call(arguments,0);
+    或者Array.prototype.concat.apply([],arguments)
+ }
+ Array.from(arguments)
+ 
+ 首先搞清楚这一题要搞清楚 push ，其实push的时候会首先查询数组（伪数组）的 length 属性，接着在数组的最后一个添加上新的元素即 arr[length] （数组从零开始），然后length 增加一。 
+ 在这一题中，首先 伪数组查到length 是 2 ，就会 直接在 2 这个下标（属性） 上push 1 ， 而length 会增加 1 变成 3 ，接着重复这个过程。
+
+题外话： 伪数组 没有 length 的时候默认是 0。
