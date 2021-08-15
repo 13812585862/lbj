@@ -83,3 +83,55 @@ function list(){
  在这一题中，首先 伪数组查到length 是 2 ，就会 直接在 2 这个下标（属性） 上push 1 ， 而length 会增加 1 变成 3 ，接着重复这个过程。
 
 题外话： 伪数组 没有 length 的时候默认是 0。
+
+（6）Vue 的响应式原理中 Object.defineProperty 有什么缺陷？为什么在 Vue3.0 采用了 Proxy，抛弃了 Object.defineProperty？
+Object.defineProperty无法监控到数组下标的变化，导致通过数组下标添加元素，不能实时响应；
+Object.defineProperty只能劫持对象的属性，从而需要对每个对象，每个属性进行遍历，如果，属性值是对象，还需要深度遍历。Proxy可以劫持整个对象，并返回一个新的对象。
+Proxy不仅可以代理对象，还可以代理数组。还可以代理动态增加的属性。
+Proxy 让我们能够以简洁易懂的方式控制外部对对象的访问。其功能非常类似于设计模式中的代理模式。
+Proxy 可以理解成，在目标对象之前架设一层“拦截”，外界对该对象的访问，都必须先通过这层拦截，因此提供了一种机制，可以对外界的访问进行过滤和改写。
+使用 Proxy 的核心优点是可以交由它来处理一些非核心逻辑（如：读取或设置对象的某些属性前记录日志；设置对象的某些属性值前，需要验证；某些属性的访问控制等）。
+从而可以让对象只需关注于核心逻辑，达到关注点分离，降低对象复杂度等目的。
+let p = new Proxy(target, handler);
+target 是用Proxy包装的被代理对象（可以是任何类型的对象，包括原生数组，函数，甚至另一个代理）。
+handler 是一个对象，其声明了代理target 的一些操作，其属性是当执行一个操作时定义代理的行为的函数。
+demo：
+ let obj = {};
+ let handler = {
+   get(target, property) {
+    console.log(`${property} 被读取`);
+    return property in target ? target[property] : 3;
+   },
+   set(target, property, value) {
+    console.log(`${property} 被设置为 ${value}`);
+    target[property] = value;
+   }
+ }
+ 
+ let p = new Proxy(obj, handler);
+ p.name = 'tom' //name 被设置为 tom
+ p.age; //age 被读取 3
+详细请看：https://www.jianshu.com/p/860418f0785c
+
+（7）怎么让一个 div 水平垂直居中
+1div.parent {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+2div.parent {
+    position: relative; 
+}
+div.child {
+    position: absolute; 
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);  
+}
+3.div.parent{
+  display:flex;
+}
+div.child{
+  margin:auto;
+}
