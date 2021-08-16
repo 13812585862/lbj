@@ -153,3 +153,62 @@ div.child {
 div.child{
   margin:auto;
 }
+（8）var a = {n: 1};
+var b = a;
+a.x = a = {n: 2};
+
+console.log(a.x) 	
+console.log(b.x)
+
+var a = {n: 1}; // a保持对{n:1}对象的引用
+var b = a; // b保持对{n:1}对象的引用
+a.x = a = {n: 2}; // a的引用被改变
+
+a.x 	// --> undefined
+b.x 	// --> {n: 2}
+1、.运算符优先，a.x此时保持对{n: 1}的引用，也就是b也保持对{n: 1}的引用，于是{n: 1} => {n: 1, x: undefined}，此时a和b还是对原来对象的引用，只不过原来对象增加了x属性
+2、=从右往左，a = {n: 2}，此时a的引用已经变成了{n: 2}这个对象
+3、a.x=a，此时a.x是保持对{ n: 1, x: undefined}中的x引用，也就是b.x，于是{ n: 1, x: undefined} => {n: 1, x: { n: 2}}，即b.x = { n: 2 }
+
+提取操作
+var a = { n : 1};
+var b = a;
+
+a.x;
+a = { n: 2 };
+b.x = a;
+
+console.log(a.x);
+console.log(b.x);
+（9）冒泡排序如何实现，时间复杂度是多少， 还可以如何改进
+function bubbleSort(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        for (let j = 0; j < arr.length - i - 1; j++) {
+            if (arr[j] > arr[j + 1]) {
+                const temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+    }
+    console.log(arr);
+}
+
+// 改进冒泡排序
+function bubbleSort1(arr) {
+    let i = arr.length - 1;
+
+    while (i > 0) {
+        let pos = 0;
+        for (let j = 0; j < i; j++) {
+            if (arr[j] > arr[j + 1]) {
+                pos = j;
+                const temp = arr[j];
+                arr[j] = arr[j + 1];
+                arr[j + 1] = temp;
+            }
+        }
+        i = pos;
+    }
+    console.log(arr);
+}
