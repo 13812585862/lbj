@@ -212,3 +212,17 @@ function bubbleSort1(arr) {
     }
     console.log(arr);
 }
+（10）{1:222, 2:123, 5:888}，请把数据处理为如下结构：[222, 123, null, null, 888, null, null, null, null, null, null, null]
+let obj = {1:222, 2:123, 5:888};
+obj.length = 12;
+let _obj = Array.from(obj).slice(1);   可以换成let _obj=[].slice.call(obj).slice(1)
+let newObj =  _obj.map((item) => {if(item === undefined) {return null;} else {return item;}});
+console.log(newObj);
+
+let obj = {1:222, 2:123, 5:888};
+obj.length = 12;
+obj[Symbol.iterator] = Array.prototype[Symbol.iterator];
+let _obj = [...obj].slice(1);
+let newObj =  _obj.map((item) => {if(item === undefined) {return null;} else {return item;}});
+console.log(newObj);
+
