@@ -139,3 +139,21 @@ function New(Ctor, ...rest) {
   
   return ret || o
 }
+（4）给定两个数组，写一个方法来计算它们的交集
+给定 nums1 = [1, 2, 2, 1]，nums2 = [2, 2]，返回 [2, 2]。       解题思路是找到就删掉
+let intersection = (...arg) => {
+  let result = [];
+  arg[0].forEach((v) => {
+    if (arg[1].indexOf(v) !== -1) {
+      result.push(v); 
+      arg[1].splice(arg[1].indexOf(v), 1);
+    }
+  }); return result;
+}
+（5）已知如下代码，如何修改才能让图片宽度为 300px ？注意下面代码不可修改。
+<img src="1.jpg" style="width:480px!important;”>	
+	1.	img {animation: test 0s forwards;}
+@keyframes test {from {width: 400px;}to {width: 300px;}}
+2.zoom: 0.625
+3.transform: scale(0.625,1)
+4.max-width可以覆盖掉!important
