@@ -219,3 +219,13 @@ State是只读的
 5、到第一个li，往前看最后一个li时，也是和上面同理
 
 汽车之家 我看了一下也是ul设置设置9999em，li float:left 然后根据算法让当前的li opacity=1就是显示了（重绘、非继承）
+（9）模拟实现一个 Promise.finally
+Promise.prototype.finally = function (callback) {
+  let P = this.constructor;
+  return this.then(
+    value  => P.resolve(callback()).then(() => value),
+    reason => P.resolve(callback()).then(() => { throw reason })
+  );
+};
+（10）a.b.c.d 和 a['b']['c']['d']，哪个性能更高？
+a.b.c.d 比 a['b']['c']['d'] 性能高点，因为[ ]里面有可能是字符串，有可能是变量，至少多一次判断，而a.b.c.d是直接取用该字符串当作属性名的
