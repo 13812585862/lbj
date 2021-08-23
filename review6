@@ -1,0 +1,50 @@
+（1）ES6 代码转成 ES5 代码的实现思路是什么
+ES6 转 ES5 目前行业标配是用 Babel，转换的大致流程如下：
+解析：解析代码字符串，生成 AST；
+转换：按一定的规则转换、修改 AST；
+生成：将修改后的 AST 转换成普通代码。
+如果不用工具，纯人工的话，就是使用或自己写各种 polyfill 了
+可以使用 @babel/parser 的 
+parse 方法，将代码字符串解析成 AST；使用 @babel/core 的 transformFromAstSync 方法，对 AST 进行处理，将其转成 ES5 并生成相应的代码字符串；过程中，可能还需要使用 @babel/traverse 来获取依赖文件
+
+（2）随机生成一个长度为 10 的整数类型的数组，例如 [2, 10, 3, 4, 5, 11, 10, 11, 20]，将其排列成一个新数组，要求新数组形式如下，例如 [[2, 3, 4, 5], [10, 11], [20]]
+// 得到一个两数之间的随机整数，包括两个数在内
+function getRandomIntInclusive(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min + 1)) + min; //含最大值，含最小值 
+}
+// 随机生成10个整数数组, 排序, 去重
+let initArr = Array.from({ length: 10 }, (v) => { return getRandomIntInclusive(0, 99) });
+initArr.sort((a,b) => { return a - b });
+initArr = [...(new Set(initArr))];
+
+// 放入hash表
+let obj = {};
+initArr.map((i) => {
+    const intNum = Math.floor(i/10);
+    if (!obj[intNum]) obj[intNum] = [];
+    obj[intNum].push(i);
+})
+
+// 输出结果
+const resArr = [];
+for(let i in obj) {
+    resArr.push(obj[i]);
+}
+console.log(resArr);
+（3） 如何解决移动端 Retina 屏 1px 像素问题
+1 伪元素 + transform scaleY(.5) 所有场景都符合，支持圆角(伪类和本体类都需要加border-radius)，缺点是使用过的伪类的话，可能需要多层嵌套
+2 border-image 可以实现单条、多条边框。 修改颜色麻烦, 需要替换图片。圆角需要特殊处理，并且边缘会模糊
+3 background-image 可以实现单条、多条边框。 修改颜色麻烦, 需要替换图片。圆角需要特殊处理，并且边缘会模糊
+4 box-shadow 代码量少，符合所有场景。但是边框有阴影，颜色变浅
+5.viewport + rem 实现 这种兼容方案相对比较完美，适合新的项目，老的项目修改成本过大
+（4） 如何把一个字符串的大小写取反
+function processString (s) {
+    var arr = s.split('');
+    var new_arr = arr.map((item) => {
+        return item === item.toUpperCase() ? item.toLowerCase() : item.toUpperCase();
+    });
+    return new_arr.join('');
+}
+console.log(processString('AbC'));
