@@ -48,3 +48,20 @@ function processString (s) {
     return new_arr.join('');
 }
 console.log(processString('AbC'));
+（5） 介绍下 webpack 热更新原理，是如何做到在不刷新浏览器的前提下更新页面
+1.当修改了一个或多个文件；
+2.文件系统接收更改并通知webpack；
+3.webpack重新编译构建一个或多个模块，并通知HMR服务器进行更新；
+4.HMR Server 使用webSocket通知HMR runtime 需要更新，HMR运行时通过HTTP请求更新jsonp；
+5.HMR运行时替换更新中的模块，如果确定这些模块无法更新，则触发整个页面刷新。
+简单来说就是：hot-module-replacement-plugin 包给 webpack-dev-server 提供了热更新的能力，它们两者是结合使用的，单独写两个包也是出于功能的解耦来考虑的。
+1）webpack-dev-server(WDS)的功能提供 bundle server的能力，就是生成的 bundle.js 文件可以通过 localhost://xxx 的方式去访问，另外 WDS 也提供 livereload(浏览器的自动刷新)。
+2）hot-module-replacement-plugin 的作用是提供 HMR 的 runtime，并且将 runtime 注入到 bundle.js 代码里面去。一旦磁盘里面的文件修改，那么 HMR server 会将有修改的 js module 信息发送给 HMR runtime，然后 HMR runtime 去局部更新页面的代码。因此这种方式可以不用刷新浏览器。
+（6） 实现一个字符串匹配算法，从长度为 N 的字符串 S 中，查找是否存在字符串 T，T 的长度是 M，若存在返回所在位置
+const find = (S, T) => {
+  if (S.length < T.length) return -1
+  for (let i = 0; i < S.length; i++) {
+    if (S.slice(i, i + T.length) === T) return i
+  }
+  return -1
+}
