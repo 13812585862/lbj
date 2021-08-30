@@ -1,0 +1,149 @@
+（1）输出以下代码运行结果
+var a={}, b='123', c=123;
+a[b]='b';
+a[c]='c';   //c 的键名会被转换成字符串'123'，这里会把 b 覆盖掉。
+console.log(a[b]);
+
+var a={}, b=Symbol('123'), c=Symbol('123');  
+
+// b 是 Symbol 类型，不需要转换。
+a[b]='b';
+
+// c 是 Symbol 类型，不需要转换。任何一个 Symbol 类型的值都是不相等的，所以不会覆盖掉 b。                         
+a[c]='c';
+
+// 输出 b
+console.log(a[b]);
+
+var a={}, b={key:'123'}, c={key:'456'};  
+
+// b 不是字符串也不是 Symbol 类型，需要转换成字符串。
+// 对象类型会调用 toString 方法转换成字符串 [object Object]。
+a[b]='b';
+
+// c 不是字符串也不是 Symbol 类型，需要转换成字符串。
+// 对象类型会调用 toString 方法转换成字符串 [object Object]。这里会把 b 覆盖掉。
+a[c]='c';  
+
+// 输出 c
+console.log(a[b]);
+
+ 对象的键名只能是字符串和 Symbol 类型。其他类型的键名会被转换成字符串类型。对象转字符串默认会调用 toString 方法。
+（2）给定一个数组，将数组中的元素向右移动 k 个位置，其中 k 是非负数。
+输入: [1, 2, 3, 4, 5, 6, 7] 和 k = 3
+输出: [5, 6, 7, 1, 2, 3, 4]
+1.function rotate(arr, k) {
+  const len = arr.length
+  const step = k % len
+  return arr.slice(-step).concat(arr.slice(0, len - step))
+}
+2.var rotate = function(arr, k) {
+    for(var i = 0;i<k;i++){
+        arr.unshift(arr.pop())
+    }
+    return arr;
+}
+（3）Vue 的父组件和子组件生命周期钩子执行顺序是什么
+加载渲染过程：父beforeCreate->父created->父beforeMount->子beforeCreate->子created->子beforeMount->子mounted->父mounted
+父组件挂载完毕肯定是等里面的子组件都挂载完毕后才算父组件挂载完毕了，所以父组件的mounted在最后。
+子组件更新过程(子组件更新影响到父组件的情况)：父beforeUpdate -> 子beforeUpdate->子updated -> 父updted
+子组件更新过程(子组件更新不影响父组件的情况)：子beforeUpdate -> 子updated
+父组件更新过程(父组件影响子组件的情况)：父beforeUpdate -> 子beforeUpdate->子updated -> 父updted 
+父组件更新过程(父组件不影响子组件的情况)：父beforeUpdate -> 父updated
+销毁过程：父beforeDestroy->子beforeDestroy->子destroyed->父destroyed
+总结：从外到内，再从内到外
+（4）表单切换中文输入，打字就会触发input事件问题
+<input
+ref="input"
+@compositionstart="handleComposition"
+@compositionupdate="handleComposition"
+@compositionend="handleComposition"
+// 方法
+handleCompositionStart() {
+    this.isComposing = true;
+},
+handleCompositionUpdate(event) {
+    const text = event.target.value;
+    const lastCharacter = text[text.length - 1] || '';
+    // 此处通过正则对最后一个字符是否韩文作一个判断，有懂韩文的请指教一下～
+    this.isComposing = !isKorean(lastCharacter);
+},
+
+handleCompositionEnd(event) {
+    if (this.isComposing) {
+        this.isComposing = false;
+        this.handleInput(event);
+    }
+},
+handleInput(event) {
+    // should not emit input during composition
+    if (this.isComposing) return;
+    // hack for https://github.com/ElemeFE/element/issues/8548
+    // should remove the following line when we don't support IE
+    if (event.target.value === this.nativeInputValue) return;
+    this.$emit('input', event.target.value);
+    // ensure native input value is controlled
+    // see: https://github.com/ElemeFE/element/issues/12850
+    this.$nextTick(this.setNativeInputValue);
+},
+handleChange(event) {
+    this.$emit('change', event.target.value);
+},
+（5）介绍下 Promise.All 使用、原理实现及错误处理
+Promise.all()方法将多个Promise实例包装成一个Promise对象（p），接受一个数组（p1,p2,p3）作为参数，数组中不一定需要都是Promise对象，但是一定具有Iterator接口，如果不是的话，
+就会调用Promise.resolve将其转化为Promise对象之后再进行处理。
+使用Promise.all()生成的Promise对象（p）的状态是由数组中的Promise对象（p1,p2,p3）决定的；
+1、如果所有的Promise对象（p1,p2,p3）都变成fullfilled状态的话，生成的Promise对象（p）也会变成fullfilled状态，p1,p2,p3三个Promise对象产生的结果会组成一个数组返回给传递给p的回调函数；
+2、如果p1,p2,p3中有一个Promise对象变为rejected状态的话，p也会变成rejected状态，第一个被rejected的对象的返回值会传递给p的回调函数。
+Promise.all()方法生成的Promise对象也会有一个catch方法来捕获错误处理，但是如果数组中的Promise对象变成rejected状态时，并且这个对象还定义了catch的方法，那么rejected的对象会执行自己的catch
+方法，并且返回一个状态为fullfilled的Promise对象，
+Promise.all()生成的对象会接受这个Promise对象，不会返回rejected状态。
+
+对于 Promise.all(arr) 来说，在参数数组中所有元素都变为决定态后，然后才返回新的 promise。
+
+// 以下 demo，请求两个 url，当两个异步请求返还结果后，再请求第三个 url
+const p1 = request(`http://some.url.1`)
+const p2 = request(`http://some.url.2`)
+Promise.all([p1, p2])
+  .then((datas) => { // 此处 datas 为调用 p1, p2 后的结果的数组
+    return request(`http://some.url.3?a=${datas[0]}&b=${datas[1]}`)
+  })
+  .then((data) => {
+    console.log(msg)
+  })
+  
+  原理实现
+  function promiseAll(promises){
+     return new Promise(function(resolve,reject){
+            if(!Array.isArray(promises)){
+             return reject(new TypeError("argument must be anarray"))
+           }
+    var countNum=0;
+    var promiseNum=promises.length;
+    var resolvedvalue=new Array(promiseNum);
+    for(var i=0;i<promiseNum;i++){
+      (function(i){
+         Promise.resolve(promises[i]).then(function(value){
+            countNum++;
+           resolvedvalue[i]=value;
+          if(countNum===promiseNum){
+              return resolve(resolvedvalue)
+          }
+       },function(reason){
+        return reject(reason)
+      )
+     })(i)
+    }
+})
+}
+var p1=Promise.resolve(1),
+p2=Promise.resolve(2),
+p3=Promise.resolve(3);
+promiseAll([p1,p2,p3]).then(function(value){
+console.log(value)
+})
+
+Promise.all错误处理：
+有时候我们使用Promise.all()执行很多个网络请求，可能有一个请求出错，但我们并不希望其他的网络请求也返回reject，要错都错，这样显然是不合理的。
+如何做才能做到promise.all中即使一个promise程序reject，promise.all依然能把其他数据正确返回呢?
+当promise捕获到error 的时候，代码吃掉这个异常，返回resolve，约定特殊格式表示这个调用成功了
