@@ -147,3 +147,60 @@ Promise.all错误处理：
 有时候我们使用Promise.all()执行很多个网络请求，可能有一个请求出错，但我们并不希望其他的网络请求也返回reject，要错都错，这样显然是不合理的。
 如何做才能做到promise.all中即使一个promise程序reject，promise.all依然能把其他数据正确返回呢?
 当promise捕获到error 的时候，代码吃掉这个异常，返回resolve，约定特殊格式表示这个调用成功了
+（6）打印出 1 - 10000 之间的所有对称数 例如 121、1331 等
+[...Array(10000).keys()].filter((x) => { 
+  return x.toString().length > 1 && x === Number(x.toString().split('').reverse().join('')) 
+})
+（7）周一算法题之「移动零」
+function zeroMove(array) {
+        let len = array.length;
+        let j = 0;
+        for(let i=0;i<len-j;i++){
+            if(array[i]===0){
+                array.push(0);
+                array.splice(i,1);
+                i --;
+                j ++;
+            }
+        }
+        return array;
+    }
+（8）var、let 和 const 区别的实现原理是什么
+
+var的话会直接在栈内存里预分配内存空间，然后等到实际语句执行的时候，再存储对应的变量，如果传的是引用类型，那么会在堆内存里开辟一个内存空间存储实际内容，栈内存会存储一个指向堆内存的指针
+
+let的话，是不会在栈内存里预分配内存空间，而且在栈内存分配变量时，做一个检查，如果已经有相同变量名存在就会报错
+
+const的话，也不会预分配内存空间，在栈内存分配变量时也会做同样的检查。不过const存储的变量是不可修改的，对于基本类型来说你无法修改定义的值，对于引用类型来说你无法修改栈内存里分配的指针，
+但是你可以修改指针指向的对象里面的属性
+（9）请实现一个 add 函数，满足以下功能
+function add() {
+  let args = [].slice.call(arguments);
+  let fn = function(){
+   let fn_args = [].slice.call(arguments)
+   return add.apply(null,args.concat(fn_args))
+ }
+fn.toString = function(){
+  return args.reduce((a,b)=>a+b)
+}
+return fn
+}
+function add(){
+	let args = [...arguments];
+	let addfun = function(){
+		args.push(...arguments);
+		return addfun;
+	}
+	addfun.toString = function(){
+		return args.reduce((a,b)=>{
+			return a + b;
+		});
+	}
+	return addfun;
+}
+（10）react-router 里的 <Link> 标签和 <a> 标签有什么区别
+从最终渲染的 DOM 来看，这两者都是链接，都是 <a> 标签，区别是：
+<Link> 是 react-router 里实现路由跳转的链接，一般配合 <Route> 使用，react-router 接管了其默认的链接跳转行为，区别于传统的页面跳转，<Link> 的“跳转”行为只会触发相匹配的 <Route> 对应的页面内容
+更新，而不会刷新整个页面。
+而 <a> 标签就是普通的超链接了，用于从当前页面跳转到 href 指向的另一个页面（非锚点情况）。
+虽然<Link>渲染后默认也是a标签,在<Link>内部的实现原理是通过history进行了跳转，并且event.preventDefault()阻止了a标签的默认事件
