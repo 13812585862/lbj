@@ -1,0 +1,20 @@
+（1）给定一个整数数组和一个目标值，找出数组中和为目标值的两个数。你可以假设每个输入只对应一种答案，且同样的元素不能被重复利用。
+const twoSum = (nums, target) =>{
+    const map = {};
+    for(let i = 0, ln = nums.length; i < ln; i++){
+        let p = target - nums[i];
+        if(map[p] !== undefined){
+            return [map[p], i];
+        }
+        map[nums[i]] = i;
+    }
+    return false;
+};twoSum([4, 1, 4, 15], 8)
+（2）在输入框中如何判断输入的是一个正确的网址
+function isUrl(url) {
+       try {
+           new URL(url);
+           return true;
+       }catch(err){
+     return false;
+}}
