@@ -59,64 +59,61 @@ let panter = new RegExp(关键词, 'g')
 
 服务端在发送浏览器的公钥中加入CA证书，浏览器可以验证CA证书的有效性
 （7）已知数据格式，实现一个函数 fn 找出链条中所有的父级 id
-class FindFather{
-    constructor() {
-        this.data = this.init(),
-        this.target = null;
+function dfsFn(list, value) {
+  let res = []
+
+  function dfs(arr, ids=[]) {
+    for (const item of arr) {
+      if (item.id === value) {
+        res = [...ids, ...[item.id]]
+        return
+      } else {
+        if (item.children) {
+          dfs(item.children, ids.concat([item.id]))
+        }
+      }
     }
-    dfs(value,data,idArr) {
-        var that = this;
-        data.forEach((item, index) => {
-            item.idArr = idArr.concat(item.id)
-            if(item.id === value) {
-                this.target = item.idArr;
-            }
-            if(item.children){
-                return this.dfs(value, item.children, item.idArr)
-            }
-        })
-    }
-    result() {
-        return this.target;
-    }
-    init() {
-        return [{
-            id: '1',
-            name: 'test1',
+  }
+
+  dfs(list)
+
+  return res
+};
+var data = [{
+    id: '1',
+    name: 'test1',
+    children: [
+        {
+            id: '11',
+            name: 'test11',
             children: [
                 {
-                    id: '11',
-                    name: 'test11',
-                    children: [
-                        {
-                            id: '111',
-                            name: 'test111'
-                        },
-                        {
-                            id: '112',
-                            name: 'test112'
-                        }
-                    ]
-
+                    id: '111',
+                    name: 'test111'
                 },
                 {
-                    id: '12',
-                    name: 'test12',
-                    children: [
-                        {
-                            id: '121',
-                            name: 'test121'
-                        }
-                    ]
+                    id: '112',
+                    name: 'test112'
                 }
             ]
-        }];
-    }
-    
-}
-var find = new FindFather();
-find.dfs('112',find.data, [])
-console.log(find.result())  //["1","12","121"]
+        },
+        {
+            id: '12',
+            name: 'test12',
+            children: [
+                {
+                    id: '121',
+                    name: 'test121'
+                },
+                {
+                    id: '122',
+                    name: 'test122'
+                }
+            ]
+        }
+    ]
+}];
+dfs(data,'122');
 （8）vue 在 v-for 时给每项元素绑定事件需要用事件代理吗？为什么？
 可以看到使用事件代理无论是监听器数量和内存占用率都比前两者要少
 
