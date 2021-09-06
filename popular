@@ -34,3 +34,18 @@ Function.prototype.bind = function (obj) {
         })
         })
     }
+ Math.max 可以实现得到数组中最大的一项
+因为Math.max 参数里面不支持Math.max([param1,param2]) 也就是数组
+但是它支持Math.max(param1,param2,param3…),所以可以根据刚才apply的那个特点来解决 var max=Math.max.apply(null,array),这样轻易的可以得到一个数组中最大的一项(apply会将一个数组装换为一个
+参数接一个参数的传递给方法)
+这块在调用的时候第一个参数给了一个null,这个是因为没有对象去调用这个方法,我只需要用这个方法帮我运算,得到返回的结果就行,.所以直接传递了一个null过去
+ Array.prototype.push 可以实现两个数组合并
+同样push方法没有提供push一个数组,但是它提供了push(param1,param,…paramN) 所以同样也可以通过apply来装换一下这个数组,即:
+vararr1=new Array("1","2","3");   
+vararr2=new Array("4","5","6");    
+Array.prototype.push.apply(arr1,arr2);
+
+web安全
+sql注入、input转义、xss攻击
+跨域：jsonp（script img 等src 后台返回jsonp格式的接口客户端执行calback）ngix反向代理：更多的服务端配置config  nodejs中间件正向代理（引入中间件，相当于拦截接口是1端口发送的中间件进行拦截转发
+2端口） cors资源跨域共享（服务端设置access-control-allow-origin为*问题是凭证携带不了预检请求多次请求）websocket postMessage
