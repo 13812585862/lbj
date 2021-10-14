@@ -1,0 +1,94 @@
+后台
+ @PostMapping ("public/xzxkExportFile")
+    public void xzxkExportFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String expStr=request.getParameter("expStr");
+        JSONObject jsonObject = JSONObject.parseObject(expStr);
+        String starttime = jsonObject.get("receiptStartDate").toString();
+        String endtime =  jsonObject.get("receiptEndDate").toString();
+        //json转list
+        JSONArray arr = JSONArray.fromObject(jsonObject.get("expStr").toString());
+        List<Map<String, String>> dataList = JSONArray.toList(arr, Map.class);
+        //String path=this.getServletContext().getRealPath("HTMLIMAGE");//根路径
+        FileInputStream fis = null;
+        ZipOutputStream zos = new ZipOutputStream(response.getOutputStream());
+        zos.setEncoding("gbk");//解决压缩文件中的文件夹中文乱码
+        response.setContentType("application/x-msdownload");
+        response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(starttime + "至" + endtime + ".zip", "utf-8"));
+        byte[] b = new byte[1024];
+        int len = 0;
+        try {
+            for (int i = 0; i < dataList.size(); i++) {
+                // String docName = dataList.get(i).get("DOCNAME");
+                String slh = dataList.get(i).get("SLH");
+                String sqr = dataList.get(i).get("SQR");
+                String ano= dataList.get(i).get("ano");
+                //File file = new File("/" + docName);
+                List<String> file=applyService.getPics(ano);
+                if (file.size()>0) {
+                    //决定书都是在文件夹HTMLIMAGE的子文件夹中
+                    for (String picture : file ) {
+                        if(picture != null&&!picture.equals("") ) {
+                            fis = new FileInputStream(picture);
+                            zos.putNextEntry(new ZipEntry("决定书" + slh + sqr + "/" + picture));
+                            while ((len = fis.read(b)) != -1) {
+                                zos.write(b, 0, len);
+                            }
+                            zos.closeEntry();
+                            fis.close();
+                        }
+                    }
+
+                } else {
+                    System.out.println("文件夹不存在");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            //不关闭流会导致压缩包打开时报文件损坏
+            try {
+                if (fis != null) {
+                    fis.close();
+                }
+                if (zos != null) {
+                    zos.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+    前台
+     //获取页面所有数据
+                    var datas = layui.table.cache[tableId]
+                    var expArr=new Array();
+                    for(var i=0;i<datas.length;i++){
+                        expArr.push({SLH:datas[i].receivingNo,SQR:datas[i].projectName,ano:datas[i].applyNo});
+                    }
+                    var expStr=JSON.stringify(expArr);
+                    let time1 = $("#test11").val()
+                    let s11 ,s21;
+                    if (time1) {
+                        let nums1 = time1.replace(/\s+/g, "")
+                        s11 = nums1.substr(0, 10)
+                        s21 = nums1.substr(11)
+                    }else{
+                        s11 = dateFormat('YYYY-mm-dd',startTime)
+                        s21 =dateFormat('YYYY-mm-dd',endTime)
+                    }
+                    $("#receiptStartDate").val(s11)
+                    $("#receiptEndDate").val(s21)
+                    var url=BASE_WEB+'apply/public/xzxkExportFile';
+                    //将信息记录在隐藏表单里提交到后台
+                    var params={
+                       receiptStartDate:s11,
+                        receiptEndDate:s21,
+                        expStr:expStr
+                    }
+                    params=JSON.stringify(params);
+                    var f = $("#hideForm");
+                    f.append($("<input type='hidden' id='expStr' name='expStr'>"));
+                    f.find("#expStr").val(params);
+                    f.attr("action",url);
+                    f.submit();
+                    break;
